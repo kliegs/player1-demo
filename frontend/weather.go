@@ -11,7 +11,7 @@ import (
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
 )
 
-const backend = "http://"
+const backend = "https://player1-backend-438714028168.us-central1.run.app/"
 
 var tmpl = template.Must(template.New("index").Parse(`<!doctype html>
 <meta charset="utf-8" />
@@ -52,7 +52,7 @@ type weather struct {
 }
 
 func getWeather() (weather, error) {
-	resp, err := http.Get(backend + "/weather")
+	resp, err := http.Get(backend)
 	if err != nil {
 		return weather{}, err
 	}
