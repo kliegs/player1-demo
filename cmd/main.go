@@ -11,7 +11,7 @@ import (
 func main() {
 	port, _ := os.LookupEnv("PORT")
 	if port == "" {
-		port = "8090"
+		port = "8070"
 	}
 	if err := funcframework.StartHostPort("", port); err != nil {
 		log.Fatalf("funcframework.StartHostPort: %v\n", err)

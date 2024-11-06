@@ -23,6 +23,7 @@ var tmpl = template.Must(template.New("index").Parse(`<!doctype html>
   <p>Intensity: <span>{{ .Intensity}}</span></p>
   <button>Click to update with the current weather</button>
   <hr />
+  <form action="/" method="post">
   <p>
     Weather Type:
     <input type="text" name="type" />
@@ -34,6 +35,7 @@ var tmpl = template.Must(template.New("index").Parse(`<!doctype html>
   <p>
     <button>Set the current weather</button>
   </p>
+  </form>
 </body>`))
 
 func handleWeather(w http.ResponseWriter, r *http.Request) {
