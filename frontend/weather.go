@@ -1,14 +1,14 @@
-// Main generates index.html and does posts.
-package main
+// Weather shows and set weather.
+package weather
 
 import (
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
-	"os"
+
+	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
 )
 
 const backend = "http://"
@@ -36,16 +36,7 @@ var tmpl = template.Must(template.New("index").Parse(`<!doctype html>
   </p>
 </body>`))
 
-func main() {
-	http.HandleFunc("/", handleIndex)
-	port, _ := os.LookupEnv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	log.Fatal(http.ListenAndServe(":"+port, nil))
-}
-
-func handleIndex(w http.ResponseWriter, r *http.Request) {
+func handleWeather(w http.ResponseWriter, r *http.Request) {
 	cur, err := getWeather()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Could not get weather: %v", err), http.StatusInternalServerError)
@@ -78,6 +69,10 @@ func getWeather() (weather, error) {
 	return w, nil
 }
 
-func setWeather() {
+func setWeather(w weather) error {
+	return nil
+}
 
+func init() {
+	functions.HTTP("FRONTEND", handleWeather)
 }
