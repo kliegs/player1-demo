@@ -2,10 +2,16 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"html/template"
+	"io"
+	"log"
+	"net/http"
 	"os"
-
 )
+
+const backend = "http://"
 
 var tmpl = template.Must(template.New("index").Parse(`<!doctype html>
 <meta charset="utf-8" />
@@ -13,8 +19,8 @@ var tmpl = template.Must(template.New("index").Parse(`<!doctype html>
 <body>
   <h1>Weather Control App</h1>
   <hr />
-  <p>WeatherType: <span>proto.weathertype goes here</span></p>
-  <p>Intensity: <span>proto.intensity goes here</span></p>
+  <p>WeatherType: <span>{{ .Type}}</span></p>
+  <p>Intensity: <span>{{ .Intensity}}</span></p>
   <button>Click to update with the current weather</button>
   <hr />
   <p>
@@ -28,9 +34,50 @@ var tmpl = template.Must(template.New("index").Parse(`<!doctype html>
   <p>
     <button>Set the current weather</button>
   </p>
-</body>`)
+</body>`))
 
 func main() {
-	
-	tmpl.Execute(os.Stdout, map[any]string{})
+	http.HandleFunc("/", handleIndex)
+	port, _ := os.LookupEnv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+func handleIndex(w http.ResponseWriter, r *http.Request) {
+	cur, err := getWeather()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Could not get weather: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, cur)
+}
+
+type weather struct {
+	Type      string
+	Intensity int
+}
+
+func getWeather() (weather, error) {
+	resp, err := http.Get(backend + "/weather")
+	if err != nil {
+		return weather{}, err
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return weather{}, err
+	}
+	var w weather
+	if err := json.Unmarshal(b, &w); err != nil {
+		return weather{}, err
+	}
+
+	return w, nil
+}
+
+func setWeather() {
+
 }
